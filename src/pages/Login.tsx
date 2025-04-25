@@ -21,18 +21,30 @@ const Login = () => {
   const [userType, setUserType] = useState('reporter');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [serviceNumber, setServiceNumber] = useState('');
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Login attempt:", { userType, email, password });
+    console.log("Login attempt:", { userType, email, password, serviceNumber });
     
+    if ((userType === 'police' || userType === 'medical') && !serviceNumber) {
+      toast({
+        title: "Service Number Required",
+        description: "Please enter your service/registration number",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
       title: "Login Successful",
       description: `You've logged in as a ${userRoles.find(role => role.id === userType)?.name}`,
     });
   };
+
+  const showServiceNumber = userType === 'police' || userType === 'medical';
 
   return (
     <Layout>
@@ -82,6 +94,21 @@ const Login = () => {
                     required
                   />
                 </div>
+
+                {showServiceNumber && (
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceNumber">
+                      {userType === 'police' ? 'Service Number' : 'Registration Number'}
+                    </Label>
+                    <Input
+                      id="serviceNumber"
+                      placeholder={`Enter your ${userType === 'police' ? 'service' : 'registration'} number`}
+                      value={serviceNumber}
+                      onChange={(e) => setServiceNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
