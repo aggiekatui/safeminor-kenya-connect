@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Home, ShieldCheck, Phone, HelpCircle } from 'lucide-react';
+import { Menu, X, Home, ShieldCheck, Phone, HelpCircle, Clock } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavLink {
@@ -14,6 +13,7 @@ interface NavLink {
 const navLinks: NavLink[] = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Report Case', href: '/report', icon: ShieldCheck },
+  { name: 'Delayed Cases', href: '/delayed-cases', icon: Clock },
   { name: 'Resources', href: '/resources', icon: HelpCircle },
   { name: 'Contact', href: '/contact', icon: Phone },
 ];
