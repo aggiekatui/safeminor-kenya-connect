@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,8 +20,7 @@ export default function Hero() {
           <div className="pt-10 sm:pt-16 lg:pt-8 xl:pt-16">
             <div className="sm:text-center lg:text-left px-4 sm:px-6 lg:px-8">
               <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                <span className="block">Protecting Kenya's</span>
-                <span className="block text-safeminor-primary">Young Generation</span>
+                <span className="block font-bold text-safeminor-primary">SAFEMINOR</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto lg:mx-0">
                 SafeMinor Kenya provides a secure platform for reporting and managing gender-based violence cases against minors. Our goal is to create a safer environment for all children across Kenya.
