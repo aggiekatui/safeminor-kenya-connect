@@ -63,7 +63,7 @@ const Contact = () => {
                         <p className="mt-1 text-gray-500">
                           Call our support line for assistance
                         </p>
-                        <p className="mt-2 text-safeminor-primary font-medium">+254 700 123 456</p>
+                        <p className="mt-2 text-safeminor-primary font-medium">1195</p>
                       </div>
                     </div>
                   </CardContent>
@@ -94,7 +94,7 @@ const Contact = () => {
                           Visit our headquarters
                         </p>
                         <address className="mt-2 not-italic text-safeminor-primary font-medium">
-                          Safeminor Plaza<br />
+                          Stima Plaza<br />
                           Moi Avenue, Nairobi<br />
                           Kenya
                         </address>
