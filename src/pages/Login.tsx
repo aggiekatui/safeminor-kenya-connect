@@ -8,12 +8,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Shield, Users } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const userRoles = [
   { id: 'reporter', name: 'Reporter', description: 'Regular users who report cases' },
   { id: 'medical', name: 'Medical Officer', description: 'Healthcare providers' },
   { id: 'police', name: 'Police Officer', description: 'Law enforcement' },
+  { id: 'chief', name: 'Chief', description: 'Local authority' },
   { id: 'admin', name: 'Administrator', description: 'System administrators' }
 ];
 
@@ -29,7 +38,7 @@ const Login = () => {
     
     console.log("Login attempt:", { userType, email, password, serviceNumber });
     
-    if ((userType === 'police' || userType === 'medical') && !serviceNumber) {
+    if ((userType === 'police' || userType === 'medical' || userType === 'chief') && !serviceNumber) {
       toast({
         title: "Service Number Required",
         description: "Please enter your service/registration number",
@@ -44,7 +53,7 @@ const Login = () => {
     });
   };
 
-  const showServiceNumber = userType === 'police' || userType === 'medical';
+  const showServiceNumber = userType === 'police' || userType === 'medical' || userType === 'chief';
 
   return (
     <Layout>
@@ -65,23 +74,49 @@ const Login = () => {
             </CardHeader>
             
             <CardContent>
-              <Tabs onValueChange={setUserType} value={userType} className="mb-6">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-4">
-                  {userRoles.map(role => (
-                    <TabsTrigger key={role.id} value={role.id}>
-                      {role.name}
+              <div className="flex justify-between items-center mb-6">
+                <Tabs onValueChange={setUserType} value={userType} className="flex-1">
+                  <TabsList className="grid grid-cols-2">
+                    <TabsTrigger value="reporter">Reporter</TabsTrigger>
+                    <TabsTrigger value="users" className="flex items-center">
+                      <Users className="h-4 w-4 mr-1" /> Users
                     </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                {userRoles.map(role => (
-                  <TabsContent key={role.id} value={role.id}>
+                  </TabsList>
+                  
+                  <TabsContent value="reporter">
                     <div className="text-sm text-gray-500 mb-4">
-                      {role.description} - Enter your credentials to login.
+                      Regular users who report cases - Enter your credentials to login.
                     </div>
                   </TabsContent>
-                ))}
-              </Tabs>
+                  
+                  <TabsContent value="users">
+                    <div className="mt-2 mb-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="w-full justify-between">
+                            <span>{userRoles.find(role => role.id === userType)?.name || 'Select Role'}</span>
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-full">
+                          <DropdownMenuLabel>User Roles</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {userRoles.filter(role => role.id !== 'reporter').map((role) => (
+                            <DropdownMenuItem 
+                              key={role.id} 
+                              onClick={() => setUserType(role.id)}
+                              className="cursor-pointer"
+                            >
+                              {role.name}
+                              <span className="text-xs ml-2 text-muted-foreground">({role.description})</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -98,11 +133,15 @@ const Login = () => {
                 {showServiceNumber && (
                   <div className="space-y-2">
                     <Label htmlFor="serviceNumber">
-                      {userType === 'police' ? 'Service Number' : 'Registration Number'}
+                      {userType === 'police' ? 'Service Number' : 
+                       userType === 'chief' ? 'Chief ID' : 'Registration Number'}
                     </Label>
                     <Input
                       id="serviceNumber"
-                      placeholder={`Enter your ${userType === 'police' ? 'service' : 'registration'} number`}
+                      placeholder={`Enter your ${
+                        userType === 'police' ? 'service' : 
+                        userType === 'chief' ? 'chief ID' : 'registration'
+                      } number`}
                       value={serviceNumber}
                       onChange={(e) => setServiceNumber(e.target.value)}
                       required
