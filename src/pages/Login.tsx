@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +31,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [serviceNumber, setServiceNumber] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +51,18 @@ const Login = () => {
       title: "Login Successful",
       description: `You've logged in as a ${userRoles.find(role => role.id === userType)?.name}`,
     });
+
+    // Redirecting to homepage with admin access for admin roles
+    if (userType === 'admin' || userType === 'police') {
+      // In a real app, you would set authentication state in a context or store
+      // For now, we'll use localStorage to simulate authenticated state
+      localStorage.setItem('isAdminLoggedIn', 'true');
+      localStorage.setItem('userRole', userType);
+      navigate('/?tab=admin');
+    } else {
+      // For regular users, just navigate to the homepage
+      navigate('/');
+    }
   };
 
   const showServiceNumber = userType === 'police' || userType === 'medical' || userType === 'chief';

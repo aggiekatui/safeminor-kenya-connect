@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import Hero from '../components/home/Hero';
 import StatSection from '../components/home/StatSection';
@@ -36,7 +37,27 @@ const Index = () => {
   const { toast } = useToast();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [currentAdminView, setCurrentAdminView] = useState<'medical' | 'police' | 'victims'>('medical');
-  const [isAdmin, setIsAdmin] = useState(false); // In a real app, this would come from auth state
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState('home');
+  
+  // Check if user is logged in as admin on component mount
+  useEffect(() => {
+    const adminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+    setIsAdmin(adminLoggedIn);
+    
+    // Set active tab from URL or localStorage if applicable
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && (tabFromUrl === 'home' || tabFromUrl === 'emergency' || (tabFromUrl === 'admin' && adminLoggedIn))) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+  
+  // Update URL when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams({ tab: value });
+  };
 
   const startVoiceAlert = async () => {
     try {
@@ -139,18 +160,41 @@ const Index = () => {
       description: "You now have view-only access to sensitive data.",
     });
     setIsAdmin(true);
+    localStorage.setItem('isAdminLoggedIn', 'true');
+    localStorage.setItem('userRole', 'admin');
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    localStorage.removeItem('isAdminLoggedIn');
+    localStorage.removeItem('userRole');
+    
+    // If currently on admin tab, switch to home
+    if (activeTab === 'admin') {
+      setActiveTab('home');
+      setSearchParams({ tab: 'home' });
+    }
+    
+    toast({
+      title: "Logged Out",
+      description: "You've been logged out of administrator access.",
+    });
   };
 
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Tabs defaultValue="home" className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="home">Home</TabsTrigger>
             <TabsTrigger value="emergency" className="bg-red-100 hover:bg-red-200 data-[state=active]:bg-red-200">
               <AlertTriangle className="mr-2 h-4 w-4" /> Emergency Alert
             </TabsTrigger>
-            <TabsTrigger value="admin" className="bg-blue-100 hover:bg-blue-200 data-[state=active]:bg-blue-200">
+            <TabsTrigger 
+              value="admin" 
+              className="bg-blue-100 hover:bg-blue-200 data-[state=active]:bg-blue-200"
+              disabled={!isAdmin}
+            >
               <Shield className="mr-2 h-4 w-4" /> Administrator
             </TabsTrigger>
           </TabsList>
@@ -241,8 +285,8 @@ const Index = () => {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-x-2">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex flex-wrap gap-2">
                         <Button 
                           variant={currentAdminView === 'medical' ? 'default' : 'outline'}
                           onClick={() => setCurrentAdminView('medical')}
@@ -268,9 +312,14 @@ const Index = () => {
                           Victim Records
                         </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold">Note:</span> Read-only access
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-muted-foreground">
+                          <span className="font-semibold">Role:</span> {localStorage.getItem('userRole') === 'admin' ? 'System Admin' : 'Police OCS'}
+                        </p>
+                        <Button variant="outline" size="sm" onClick={handleAdminLogout}>
+                          Log Out
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="rounded-md border">
@@ -379,11 +428,6 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">
                   Accessing this data requires proper authorization
                 </p>
-                {isAdmin && (
-                  <Button variant="outline" onClick={() => setIsAdmin(false)}>
-                    Log Out
-                  </Button>
-                )}
               </CardFooter>
             </Card>
           </TabsContent>
